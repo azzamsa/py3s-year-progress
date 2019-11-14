@@ -6,6 +6,7 @@ Configuration parameters:
     progress_block: block type to show progress (default '▓')
     remain_block: block type to show remaining progress (default '░')
     progress_width: progress bar width (default 10)
+    cache_timeout: refresh interval for this module, default 1 hour (default 3600)
 
 Format placeholders:
     {progress_bar} Progress bar
@@ -24,8 +25,9 @@ year_progress {
 
 @author azzamsa <https://github.com/azzamsa>
 @license GPLv3 <https://www.gnu.org/licenses/gpl-3.0.txt>
-Credit: inspired by twitter.com/year_progress <https://github.com/filiph/progress_bar>
 
+Notes:
+    Credit: Part of the code are ported from twitter.com/year_progress <https://github.com/filiph/progress_bar>
 
 SAMPLE OUTPUT
 {'full_text': '▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86%'}
@@ -74,6 +76,7 @@ class Py3status:
     progress_width = 20
     progress_block = "▓"
     remain_block = "░"
+    cache_timeout = 3600
 
     def _create_progress_string(self, progress, width=20):
         progress_int = int(round(progress * width))
@@ -92,7 +95,10 @@ class Py3status:
         data = {"progress_bar": progress_bar, "ratio": ratio_int}
         status = self.py3.safe_format(self.format, data)
 
-        return {"full_text": status, "cached_until": self.py3.CACHE_FOREVER}
+        return {
+            "full_text": status,
+            "cached_until": self.py3.time_in(self.cache_timeout),
+        }
 
 
 if __name__ == "__main__":
