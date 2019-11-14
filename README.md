@@ -1,20 +1,10 @@
 # Year Progress in Py3status
 
+Show year progress in your py3status
+
 ## Docs
 
-```
-Year progress.
-
-Configuration parameters:
-    progress_block: block type to show progress (default '▓')
-    remain_block: block type to show remaining progress (default '░')
-    progress_width: progress bar width (default 10)
-
-Format placeholders:
-    {progress_bar} Progress bar
-    {ratio} Progress ratio
-
-```
+See the docs string
 
 ## Examples configuration
 
@@ -28,8 +18,11 @@ year_progress {
 ```
 
 ## Sample Output
+
 {'full_text': '▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86%'}
+
+![image](https://user-images.githubusercontent.com/17734314/68861839-e6c05880-071e-11ea-91b3-5373484e51f7.png)
 
 ## Credit:
 
-Inspired by twitter.com/year_progress <https://github.com/filiph/progress_bar>
+Part of the code are ported from twitter.com/year_progress <https://github.com/filiph/progress_bar>
