@@ -75,7 +75,7 @@ class Py3status:
     progress_block = "▓"
     remain_block = "░"
 
-    def create_progress_string(self, progress, width=20):
+    def _create_progress_string(self, progress, width=20):
         progress_int = int(round(progress * width))
         rest_int = int(width - progress_int)
         return "{}{}".format(
@@ -85,7 +85,7 @@ class Py3status:
     def year_progress(self):
         progress_ratio = compute_current_year_progress()
         ratio_int = int(progress_ratio * 100)
-        progress_bar = self.create_progress_string(
+        progress_bar = self._create_progress_string(
             progress_ratio, width=self.progress_width
         )
 
