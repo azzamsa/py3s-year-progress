@@ -5,7 +5,7 @@ Year progress.
 Configuration parameters:
     progress_block: block type to show progress (default '▓')
     remain_block: block type to show remaining progress (default '░')
-    progress_width: progress bar width (default 10)
+    progress_width: progress bar width (default 5)
     cache_timeout: refresh interval for this module, default 1 hour (default 3600)
 
 Format placeholders:
@@ -19,7 +19,7 @@ year_progress {
     format = "{progress_bar} {ratio}%"
     progress_block = '▓'
     remain_block = '░'
-    progress_width = 10
+    progress_width = 5
 }
 ```
 
@@ -73,7 +73,7 @@ def compute_current_year_progress(current=None):
 
 class Py3status:
     format = "{progress_bar} {ratio}%"
-    progress_width = 20
+    progress_width = 5
     progress_block = "▓"
     remain_block = "░"
     cache_timeout = 3600
