@@ -62,34 +62,43 @@ def compute_progress(start, end, current):
     return float(current_diff_in_seconds) / float(whole_diff_in_seconds)
 
 
-def compute_current_week_progress(current=None):
+def compute_current_week_progress(current=None, end=None):
     if not current:
         current = datetime.now(tz=UTC())
-        week_start = current - timedelta(days=current.weekday())
+
+    week_start = current - timedelta(days=current.weekday())
+    if not end:
         week_end = week_start + timedelta(days=6)
+    week_end = end
     return compute_progress(week_start, week_end, current)
 
 
-def compute_current_day_progress(current=None):
+def compute_current_day_progress(current=None, end=None):
     if not current:
         current = datetime.now(tz=UTC())
-        start = datetime(current.year, current.month, current.day, tzinfo=UTC())
+
+    start = datetime(current.year, current.month, current.day, tzinfo=UTC())
+    if not end:
         end = datetime(current.year, current.month, current.day + 1, tzinfo=UTC())
     return compute_progress(start, end, current)
 
 
-def compute_current_month_progress(current=None):
+def compute_current_month_progress(current=None, end=None):
     if not current:
         current = datetime.now(tz=UTC())
-        start = datetime(current.year, current.month, 1, tzinfo=UTC())
+
+    start = datetime(current.year, current.month, 1, tzinfo=UTC())
+    if not end:
         end = datetime(current.year, current.month + 1, 1, tzinfo=UTC())
     return compute_progress(start, end, current)
 
 
-def compute_current_year_progress(current=None):
+def compute_current_year_progress(current=None, end=None):
     if not current:
         current = datetime.now(tz=UTC())
-        start = datetime(current.year, 1, 1, tzinfo=UTC())
+
+    start = datetime(current.year, 1, 1, tzinfo=UTC())
+    if not end:
         end = datetime(current.year + 1, 1, 1, tzinfo=UTC())
     return compute_progress(start, end, current)
 
@@ -101,6 +110,7 @@ class Py3status:
     remain_block = "░"
     cache_timeout = 3600
     progress_mode = "year"
+    ctime = None
 
     def _create_progress_string(self, progress, width=20):
         progress_int = int(round(progress * width))
@@ -110,17 +120,22 @@ class Py3status:
         )
 
     def year_progress(self):
+        end_time = None
+        if self.ctime:
+            end_time = datetime.strptime(self.ctime[0], self.ctime[1])
+            end_time = end_time.replace(tzinfo=UTC())
+
         if self.progress_mode == "year":
-            progress_ratio = compute_current_year_progress()
+            progress_ratio = compute_current_year_progress(end=end_time)
             mode = "y"
         elif self.progress_mode == "month":
-            progress_ratio = compute_current_month_progress()
+            progress_ratio = compute_current_month_progress(end=end_time)
             mode = "m"
         elif self.progress_mode == "day":
-            progress_ratio = compute_current_day_progress()
+            progress_ratio = compute_current_day_progress(end=end_time)
             mode = "d"
         elif self.progress_mode == "week":
-            progress_ratio = compute_current_week_progress()
+            progress_ratio = compute_current_week_progress(end=end_time)
             mode = "w"
         ratio_int = int(progress_ratio * 100)
 
