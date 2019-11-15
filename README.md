@@ -2,6 +2,18 @@
 
 Show year progress in your py3status
 
+## Feature
+
+- Show year progress
+- Show month, week, day progress (toggled with mouse click)
+- Custom end date (still in alpha)
+
+## Installation
+
+Put this file in one of [py3status custom module location][1] such as
+`~/.config/i3status/py3status`, then add proper configuration in your i3status
+config.
+
 ## Docs
 
 See the docs string
@@ -10,7 +22,7 @@ See the docs string
 
 ``` yaml
 year_progress {
-    format = "{progress_bar} {ratio}%"
+    format = "{progress_bar} {ratio}%{mode}"
     progress_block = '▓'
     remain_block = '░'
     progress_width = 10
@@ -26,3 +38,5 @@ year_progress {
 ## Credit:
 
 Part of the code are ported from twitter.com/year_progress <https://github.com/filiph/progress_bar>
+
+[1]: https://py3status.readthedocs.io/en/latest/writing_modules.html#importing-custom-modules
