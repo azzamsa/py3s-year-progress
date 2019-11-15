@@ -74,18 +74,21 @@ def compute_current_week_progress(current=None, week_end=None):
 
 
 def compute_current_day_progress(current=None, end=None):
-    """Compute current hour??? progress to tomorrow (00:00 AM)"""
+    """Compute current hour progress to tomorrow (00:00 AM)"""
     if not current:
-        current = datetime.now(tz=UTC())
+        current = datetime.now().astimezone()
 
-    start = datetime(current.year, current.month, current.day, tzinfo=UTC())
+    start = datetime(current.year, current.month, current.day).astimezone()
     if not end:
-        end = datetime(current.year, current.month, current.day + 1, tzinfo=UTC())
+        end = datetime(
+            current.year, current.month, current.day, 23, 59, 00
+        ).astimezone()
+
     return compute_progress(start, end, current)
 
 
 def compute_current_month_progress(current=None, end=None):
-    """Compute current month progress to next month"""
+    """Compute current date to the first date of  next month"""
     if not current:
         current = datetime.now(tz=UTC())
 
