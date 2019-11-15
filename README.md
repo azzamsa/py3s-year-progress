@@ -19,7 +19,7 @@ year_progress {
 
 ## Sample Output
 
-{'full_text': '▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86%'}
+{'full_text': '▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86%'y}
 
 ![image](https://user-images.githubusercontent.com/17734314/68861839-e6c05880-071e-11ea-91b3-5373484e51f7.png)
 

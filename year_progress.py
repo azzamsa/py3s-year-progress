@@ -11,12 +11,13 @@ Configuration parameters:
 Format placeholders:
     {progress_bar} Progress bar
     {ratio} Progress ratio
+    {mode} Progress mode [year|month|day|week], click the module to cycle (default 'year')
 
 
 Examples:
 ```
 year_progress {
-    format = "{progress_bar} {ratio}%"
+    format = "{progress_bar} {ratio}%{mode}"
     progress_block = '▓'
     remain_block = '░'
     progress_width = 5
@@ -30,7 +31,7 @@ Notes:
     Credit: Part of the code are ported from twitter.com/year_progress <https://github.com/filiph/progress_bar>
 
 SAMPLE OUTPUT
-{'full_text': '▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86%'}
+{'full_text': '▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86%y'}
 """
 
 from datetime import datetime, tzinfo, timedelta
@@ -50,17 +51,39 @@ class UTC(tzinfo):
 
 
 def compute_progress(start, end, current):
-    assert isinstance(start, datetime)
-    assert isinstance(end, datetime)
-    assert isinstance(current, datetime)
-
     whole_diff = end - start
     whole_diff_in_seconds = whole_diff.days * 86400 + whole_diff.seconds
+
     if whole_diff_in_seconds == 0:
         raise ValueError("Start and end datetimes are equal.")
     current_diff = current - start
     current_diff_in_seconds = current_diff.days * 86400 + current_diff.seconds
+
     return float(current_diff_in_seconds) / float(whole_diff_in_seconds)
+
+
+def compute_current_week_progress(current=None):
+    if not current:
+        current = datetime.now(tz=UTC())
+        week_start = current - timedelta(days=current.weekday())
+        week_end = week_start + timedelta(days=6)
+    return compute_progress(week_start, week_end, current)
+
+
+def compute_current_day_progress(current=None):
+    if not current:
+        current = datetime.now(tz=UTC())
+        start = datetime(current.year, current.month, current.day, tzinfo=UTC())
+        end = datetime(current.year, current.month, current.day + 1, tzinfo=UTC())
+    return compute_progress(start, end, current)
+
+
+def compute_current_month_progress(current=None):
+    if not current:
+        current = datetime.now(tz=UTC())
+        start = datetime(current.year, current.month, 1, tzinfo=UTC())
+        end = datetime(current.year, current.month + 1, 1, tzinfo=UTC())
+    return compute_progress(start, end, current)
 
 
 def compute_current_year_progress(current=None):
@@ -72,11 +95,12 @@ def compute_current_year_progress(current=None):
 
 
 class Py3status:
-    format = "{progress_bar} {ratio}%"
+    format = "{progress_bar} {ratio}%{mode}"
     progress_width = 5
     progress_block = "▓"
     remain_block = "░"
     cache_timeout = 3600
+    progress_mode = "year"
 
     def _create_progress_string(self, progress, width=20):
         progress_int = int(round(progress * width))
@@ -86,13 +110,25 @@ class Py3status:
         )
 
     def year_progress(self):
-        progress_ratio = compute_current_year_progress()
+        if self.progress_mode == "year":
+            progress_ratio = compute_current_year_progress()
+            mode = "y"
+        elif self.progress_mode == "month":
+            progress_ratio = compute_current_month_progress()
+            mode = "m"
+        elif self.progress_mode == "day":
+            progress_ratio = compute_current_day_progress()
+            mode = "d"
+        elif self.progress_mode == "week":
+            progress_ratio = compute_current_week_progress()
+            mode = "w"
         ratio_int = int(progress_ratio * 100)
+
         progress_bar = self._create_progress_string(
             progress_ratio, width=self.progress_width
         )
 
-        data = {"progress_bar": progress_bar, "ratio": ratio_int}
+        data = {"progress_bar": progress_bar, "ratio": ratio_int, "mode": mode}
         status = self.py3.safe_format(self.format, data)
 
         return {
@@ -100,11 +136,23 @@ class Py3status:
             "cached_until": self.py3.time_in(self.cache_timeout),
         }
 
+    def on_click(self, event):
+        if self.progress_mode == "year":
+            self.progress_mode = "month"
+        elif self.progress_mode == "month":
+            self.progress_mode = "day"
+        elif self.progress_mode == "day":
+            self.progress_mode = "week"
+        elif self.progress_mode == "week":
+            self.progress_mode = "year"
+
 
 if __name__ == "__main__":
     """
     Run module in test mode.
     """
     from py3status.module_test import module_test
+
+    Py3status.progress_mode = "week"
 
     module_test(Py3status)
