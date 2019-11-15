@@ -62,18 +62,19 @@ def compute_progress(start, end, current):
     return float(current_diff_in_seconds) / float(whole_diff_in_seconds)
 
 
-def compute_current_week_progress(current=None, end=None):
+def compute_current_week_progress(current=None, week_end=None):
+    """Compute current day progress to the end of the week"""
     if not current:
         current = datetime.now(tz=UTC())
 
     week_start = current - timedelta(days=current.weekday())
-    if not end:
+    if not week_end:
         week_end = week_start + timedelta(days=6)
-    week_end = end
     return compute_progress(week_start, week_end, current)
 
 
 def compute_current_day_progress(current=None, end=None):
+    """Compute current hour??? progress to tomorrow (00:00 AM)"""
     if not current:
         current = datetime.now(tz=UTC())
 
@@ -84,6 +85,7 @@ def compute_current_day_progress(current=None, end=None):
 
 
 def compute_current_month_progress(current=None, end=None):
+    """Compute current month progress to next month"""
     if not current:
         current = datetime.now(tz=UTC())
 
@@ -94,6 +96,7 @@ def compute_current_month_progress(current=None, end=None):
 
 
 def compute_current_year_progress(current=None, end=None):
+    """Compute current year progress to next year"""
     if not current:
         current = datetime.now(tz=UTC())
 
@@ -135,7 +138,7 @@ class Py3status:
             progress_ratio = compute_current_day_progress(end=end_time)
             mode = "d"
         elif self.progress_mode == "week":
-            progress_ratio = compute_current_week_progress(end=end_time)
+            progress_ratio = compute_current_week_progress(week_end=end_time)
             mode = "w"
         ratio_int = int(progress_ratio * 100)
 
