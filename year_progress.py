@@ -7,6 +7,7 @@ Configuration parameters:
     remain_block: block type to show remaining progress (default '░')
     progress_width: progress bar width (default 5)
     cache_timeout: refresh interval for this module, default 1 hour (default 3600)
+    ctime: custom time for the end of progress, useful for appointment/birthday progress.
 
 Format placeholders:
     {progress_bar} Progress bar
@@ -21,6 +22,7 @@ year_progress {
     progress_block = '▓'
     remain_block = '░'
     progress_width = 5
+    ctime = ["2020-12-16 20:59:00", "%Y-%m-%d %H:%M:%S"]
 }
 ```
 
@@ -31,7 +33,13 @@ Notes:
     Credit: Part of the code are ported from twitter.com/year_progress <https://github.com/filiph/progress_bar>
 
 SAMPLE OUTPUT
-{'full_text': '▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86%y'}
+{'full_text': '▓▓▓▓░ 87%y'}
+
+{'full_text': '▓▓▓░░ 50%m'}
+
+{'full_text': '▓▓░░░ 33%d'}
+
+{'full_text': '▓▓▓▓░ 83%w'}
 """
 
 from datetime import datetime, tzinfo, timedelta
@@ -78,6 +86,7 @@ def compute_current_day_progress(current=None, end=None):
     if not current:
         current = datetime.now().astimezone()
 
+    # start at 00:00 AM
     start = datetime(current.year, current.month, current.day).astimezone()
     if not end:
         end = datetime(
@@ -132,8 +141,7 @@ class Py3status:
     def year_progress(self):
         end_time = None
         if self.ctime:
-            end_time = datetime.strptime(self.ctime[0], self.ctime[1])
-            end_time = end_time.replace(tzinfo=UTC())
+            end_time = datetime.strptime(self.ctime[0], self.ctime[1]).astimezone()
 
         if self.progress_mode == "year":
             progress_ratio = compute_current_year_progress(end=end_time)
@@ -145,13 +153,19 @@ class Py3status:
             progress_ratio = compute_current_day_progress(end=end_time)
             mode = "d"
         elif self.progress_mode == "week":
-            progress_ratio = compute_current_week_progress(week_end=end_time)
+            progress_ratio = compute_current_week_progress()
+            if end_time:  # can't use custom end time
+                progress_ratio = None
             mode = "w"
-        ratio_int = int(progress_ratio * 100)
 
-        progress_bar = self._create_progress_string(
-            progress_ratio, width=self.progress_width
-        )
+        if progress_ratio:
+            ratio_int = int(progress_ratio * 100)
+            progress_bar = self._create_progress_string(
+                progress_ratio, width=self.progress_width
+            )
+        else:
+            progress_bar = ":)"
+            ratio_int = 0
 
         data = {"progress_bar": progress_bar, "ratio": ratio_int, "mode": mode}
         status = self.py3.safe_format(self.format, data)
