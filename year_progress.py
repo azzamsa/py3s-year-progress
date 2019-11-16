@@ -94,7 +94,11 @@ def compute_current_month_progress(current=None, end=None):
 
     start = datetime(current.year, current.month, 1, tzinfo=UTC())
     if not end:
-        end = datetime(current.year, current.month + 1, 1, tzinfo=UTC())
+        # month max 12
+        if current.month == 12:
+            end = datetime(current.year, current.month, 31, tzinfo=UTC())
+        else:
+            end = datetime(current.year, current.month + 1, 1, tzinfo=UTC())
     return compute_progress(start, end, current)
 
 
