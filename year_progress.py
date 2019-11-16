@@ -130,6 +130,15 @@ class Py3status:
     cache_timeout = 3600
     progress_mode = "year"
     ctime = None
+    thresholds = 90  # precentage, .e.g 90%
+
+    def _check_urgency(self, thresholds, progress):
+        urgency = False
+        print(progress)
+        if progress > thresholds:
+            urgency = True
+
+        return urgency
 
     def _create_progress_string(self, progress, width=20):
         progress_int = int(round(progress * width))
@@ -163,15 +172,21 @@ class Py3status:
             progress_bar = self._create_progress_string(
                 progress_ratio, width=self.progress_width
             )
+            is_urgent = self._check_urgency(self.thresholds, ratio_int)
         else:
             progress_bar = ":)"
             ratio_int = 0
+
+        color = None
+        if is_urgent:
+            color = self.py3.COLOR_BAD
 
         data = {"progress_bar": progress_bar, "ratio": ratio_int, "mode": mode}
         status = self.py3.safe_format(self.format, data)
 
         return {
             "full_text": status,
+            "color": color,
             "cached_until": self.py3.time_in(self.cache_timeout),
         }
 
@@ -192,6 +207,6 @@ if __name__ == "__main__":
     """
     from py3status.module_test import module_test
 
-    Py3status.progress_mode = "week"
+    Py3status.progress_mode = "day"
 
     module_test(Py3status)
