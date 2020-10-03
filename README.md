@@ -1,3 +1,5 @@
+> 📢 **PSA**: A successor was born: [Zman](https://sr.ht/~azzamsa/Zman/)
+
 # Year Progress in Py3status
 
 Show year progress in your py3status
